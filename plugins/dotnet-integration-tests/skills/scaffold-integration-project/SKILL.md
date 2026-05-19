@@ -62,7 +62,7 @@ Use the confirmed path for all remaining steps.
 > "Now invoking setup-test-infrastructure to configure container dependencies."
 
 Invoke `setup-test-infrastructure` with args:
-`"source project: {path-to-source-csproj}"`
+`"source csproj: {path-to-source-csproj}, test project dir: {path-to-test-project-dir}"`
 
 The sub-skill will inspect the source project's package references, detect which services are needed
 (databases, message brokers, caches, etc.), and either add Testcontainers packages to the test `.csproj`
