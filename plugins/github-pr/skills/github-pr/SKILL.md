@@ -106,9 +106,7 @@ test -f .github/PULL_REQUEST_TEMPLATE.md && cat .github/PULL_REQUEST_TEMPLATE.md
 <how to verify this works — fill in if you can infer it, otherwise leave a placeholder>
 ```
 
-Generate a draft and show it to the user before creating the PR. Ask: "Does this look right, or would you like to adjust the title or description?"
-
-If the user says it's fine or makes only small edits, proceed. If they want a full rewrite, let them provide it.
+Generate the title and description and proceed directly to Step 4 — do not show the draft or ask for confirmation. Only show the title and description first if the user explicitly asked to review it (e.g., "show me the description", "let me review it first", "I want to check the PR body").
 
 ## Step 4: Determine draft mode
 
