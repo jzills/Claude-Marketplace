@@ -37,14 +37,14 @@ Before writing any tests, do the following:
 
 ---
 
-## Infrastructure Sub-skill
+## Step 4 — Infrastructure Sub-skill
 
 If the test project exists but has no container fixture or `IntegrationTestBase`, invoke the infrastructure sub-skill before writing tests:
 
 **REQUIRED SUB-SKILL:** Invoke `setup-test-infrastructure` with args:
 `"source csproj: <path-to-source.csproj>, test project dir: <path-to-test-project/>"`
 
-The generated fixture files will be available for subsequent steps.
+The generated fixture files will be available for the sub-steps below.
 
 ---
 
@@ -111,7 +111,7 @@ public class ProductsEndpointTests : IntegrationTestBase
 }
 ```
 
-When inheriting from `IntegrationTestBase`, do not redeclare `[OneTimeSetUp]` / `[OneTimeTearDown]` — the base class owns container lifecycle.
+When inheriting from `IntegrationTestBase`, do not redeclare `[OneTimeSetUp]` / `[OneTimeTearDown]` for container lifecycle — the base class owns that. Per-fixture `[SetUp]` and `[TearDown]` in derived classes are fine.
 
 ---
 

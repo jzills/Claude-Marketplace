@@ -143,6 +143,8 @@ public class ProductsEndpointTests : IntegrationTestBase
 
 A full example testing a `ProductRepository` directly against a real PostgreSQL database.
 
+**Prerequisite:** Your entity must have an `IsTestData` bool property. If it doesn't, use Strategy B from Pattern 3 instead.
+
 ```csharp
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -162,11 +164,12 @@ public class ProductRepositoryTests : IntegrationTestBase
     private IServiceScope _scope = null!;
 
     [SetUp]
-    public void SetUp()
+    public async Task SetUp()
     {
         _scope = Factory.Services.CreateScope();
         _db = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
         _sut = new ProductRepository(_db);
+        await Task.CompletedTask;
     }
 
     [TearDown]
@@ -269,6 +272,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using MyProject.Api.Data;
+using MyProject.Api.Models;
 
 namespace MyProject.IntegrationTests;
 
@@ -373,6 +377,7 @@ Requires the domain model to have a sentinel field (`IsTestData`, `CorrelationId
 A full example that publishes a message to RabbitMQ, waits for the consumer to process it, and then asserts the side effect in the database.
 
 ```csharp
+using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
@@ -388,30 +393,26 @@ namespace MyProject.IntegrationTests.Consumers;
 public class OrderPlacedConsumerTests : IntegrationTestBase
 {
     private IConnection _rabbitConnection = null!;
-    private IModel _channel = null!;
+    private IChannel _channel = null!;
 
-    [OneTimeSetUp]
-    public void SetUpBroker()
+    [SetUp]
+    public async Task SetUpBrokerFixture()
     {
         var factory = new ConnectionFactory
         {
             Uri = new Uri(Infrastructure.RabbitMqConnectionString)
         };
-        _rabbitConnection = factory.CreateConnection();
-        _channel = _rabbitConnection.CreateModel();
-        _channel.QueueDeclare(queue: "order.placed", durable: true, exclusive: false, autoDelete: false);
-    }
-
-    [OneTimeTearDown]
-    public void TearDownBroker()
-    {
-        _channel.Dispose();
-        _rabbitConnection.Dispose();
+        _rabbitConnection = await factory.CreateConnectionAsync();
+        _channel = await _rabbitConnection.CreateChannelAsync();
+        await _channel.QueueDeclareAsync(queue: "order.placed", durable: true, exclusive: false, autoDelete: false);
     }
 
     [TearDown]
     public async Task TearDown()
     {
+        await _channel.DisposeAsync();
+        await _rabbitConnection.DisposeAsync();
+
         using var scope = Factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var testRows = db.Orders.Where(order => order.IsTestData);
@@ -424,7 +425,7 @@ public class OrderPlacedConsumerTests : IntegrationTestBase
     {
         var orderId = Guid.NewGuid();
         var message = new OrderPlacedMessage { OrderId = orderId, Total = 99.99m, IsTestData = true };
-        PublishMessage("order.placed", message);
+        await PublishMessageAsync("order.placed", message);
 
         var order = await WaitUntilAsync(
             condition: async () =>
@@ -448,28 +449,26 @@ public class OrderPlacedConsumerTests : IntegrationTestBase
     {
         var orderId = Guid.NewGuid();
         var message = new OrderPlacedMessage { OrderId = orderId, Total = 10.00m, IsTestData = true };
-        PublishMessage("order.placed", message);
+        await PublishMessageAsync("order.placed", message);
 
         // Wait for the downstream event to appear — check via HTTP or DB side effect
         var response = await WaitUntilAsync(
             condition: () => Client.GetAsync($"/api/orders/{orderId}"),
-            until: response => response.StatusCode == System.Net.HttpStatusCode.OK,
+            until: res => res.StatusCode == HttpStatusCode.OK,
             timeout: TimeSpan.FromSeconds(10)
         );
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     // --- helpers ---
 
-    private void PublishMessage<T>(string queue, T message)
+    private async Task PublishMessageAsync<T>(string queue, T message)
     {
         var json = JsonSerializer.Serialize(message);
         var body = Encoding.UTF8.GetBytes(json);
-        var properties = _channel.CreateBasicProperties();
-        properties.ContentType = "application/json";
-        properties.DeliveryMode = 2; // persistent
-        _channel.BasicPublish(exchange: string.Empty, routingKey: queue, basicProperties: properties, body: body);
+        var props = new BasicProperties { ContentType = "application/json", DeliveryMode = DeliveryModes.Persistent };
+        await _channel.BasicPublishAsync(exchange: string.Empty, routingKey: queue, basicProperties: props, body: body);
     }
 
     /// <summary>
@@ -502,8 +501,8 @@ public class OrderPlacedConsumerTests : IntegrationTestBase
 ```
 
 **Key points:**
-- Use `[OneTimeSetUp]` / `[OneTimeTearDown]` for the broker connection — creating connections is expensive.
-- Use `[TearDown]` for per-test cleanup of rows written by the consumer.
+- Use `[SetUp]` / `[TearDown]` for the broker connection in derived classes — do not redeclare `[OneTimeSetUp]` for container lifecycle (the base class owns that).
 - `WaitUntilAsync` is the canonical alternative to `Thread.Sleep` — poll at a short interval, fail fast with a clear timeout error.
 - Assert the **side effect** (DB row, downstream event, cache entry), not the internal consumer behavior.
 - Always mark test-triggered data with a sentinel field so cleanup is deterministic.
+- Pattern 4 uses **RabbitMQ.Client v7** async API: `IChannel`, `CreateChannelAsync()`, `BasicPublishAsync()`, and `BasicProperties` record initializer syntax.

@@ -8,6 +8,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 <!-- Next release entries go here -->
 
+## [1.2.0] - 2026-05-19T12:00:00Z
+
+### Fixed
+- `write-integration-tests`: Pattern 4 updated from legacy RabbitMQ.Client v5/v6 API (`IModel`, `CreateModel()`, `BasicPublish()`) to v7 async API (`IChannel`, `CreateChannelAsync()`, `BasicPublishAsync()`, `BasicProperties` record initializer)
+- `write-integration-tests`: Pattern 4 `[OneTimeSetUp]` conflict with `IntegrationTestBase` resolved — renamed broker setup to `SetUpBrokerFixture` with `[SetUp]` so derived classes don't redeclare `[OneTimeSetUp]`; `[TearDown]` now disposes broker resources and cleans DB rows
+- `write-integration-tests`: Pattern 2 `[SetUp]` changed from sync `void` to `async Task` for consistency with async test practices; prerequisite note about `IsTestData` field added before the code block
+- `write-integration-tests`: Pattern 4 lambda parameter in `WaitUntilAsync` call renamed from `response` to `res` to avoid shadowing the outer `response` variable
+- `write-integration-tests`: Pattern 3 Strategy A code block now includes `using MyProject.Api.Models;` so the `Product` reference compiles
+- `write-integration-tests`: Pattern 4 now includes `using System.Net;` and uses unqualified `HttpStatusCode.OK` consistently with Pattern 1
+- `write-integration-tests`: SKILL.md `[OneTimeSetUp]` restriction clarified — the restriction applies only to container lifecycle; per-fixture `[SetUp]`/`[TearDown]` in derived classes is explicitly allowed
+- `write-integration-tests`: SKILL.md "Infrastructure Sub-skill" section relabelled as "Step 4" so the flow reads Step 4 → Step 4A → Step 4B without an unnumbered gap
+
 ## [1.1.0] - 2026-05-19T00:00:00Z
 
 ### Added
