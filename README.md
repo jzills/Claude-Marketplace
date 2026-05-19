@@ -1,6 +1,6 @@
 # claude-marketplace
 
-A Claude Code plugin marketplace (`jz`) with plugins for git workflows, .NET testing, and skill management.
+A Claude Code plugin marketplace (`jzills`) with plugins for git workflows, .NET testing, and skill management.
 
 ## Add this marketplace
 
@@ -33,7 +33,7 @@ A Claude Code plugin marketplace (`jz`) with plugins for git workflows, .NET tes
 ## Update
 
 ```shell
-/plugin marketplace update jz
+/plugin marketplace update jzills
 ```
 
 ## Validate
