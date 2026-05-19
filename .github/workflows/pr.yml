@@ -19,7 +19,7 @@ jobs:
             plugin="${plugin_dir%/}"
             name=$(basename "$plugin")
 
-            if [ ! -f "$plugin/.claude-plugin" ]; then
+            if [ ! -d "$plugin/.claude-plugin" ]; then
               echo "ERROR: $name is missing .claude-plugin"
               failed=1
             fi
