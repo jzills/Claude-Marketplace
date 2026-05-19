@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 <!-- Next release entries go here -->
 
+## [1.1.0] - 2026-05-19T00:00:00Z
+
+### Added
+- `write-integration-tests`: initial skill — writes production-quality NUnit integration tests for ASP.NET Core controllers, EF Core repositories, and message consumers; performs a pre-flight check for an existing test project and container approach (Testcontainers or docker-compose) before generating tests; invokes `setup-test-infrastructure` as a sub-skill when no container fixture exists
+- `write-integration-tests`: `references/integration-test-patterns.md` — four concrete C# patterns covering WebApplicationFactory endpoint tests, EF Core repository tests with scoped DbContext, data seeding and cleanup (transaction-rollback and sentinel-field strategies), and message-consumer tests with a `WaitUntilAsync` polling helper
+
 ## [1.0.0] - 2026-05-19T00:00:00Z
 
 ### Added
