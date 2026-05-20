@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 <!-- Next release entries go here -->
 
+## [1.1.0] - 2026-05-19T00:00:00Z
+
+### Changed
+- `create-release`: Step 2 now detects the branching strategy via `git ls-remote --heads origin develop` and delegates to `branching-strategy:gitflow` or `branching-strategy:trunk` to determine the correct base branch — replaces the hardcoded `git checkout main`
+- `create-release`: Step 4 now resolves the default branch dynamically via `gh repo view --json defaultBranchRef` before opening the release PR, rather than assuming `main`
+
 ## [1.0.0] - 2026-05-19T00:00:00Z
 
 ### Added

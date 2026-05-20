@@ -26,15 +26,28 @@ git branch --show-current
 git remote get-url origin
 gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
 git status --short
+git ls-remote --heads origin develop
 ```
 
 From this, determine:
 - **Current branch** — this becomes the PR's head branch
-- **Base branch** — use the GitHub default branch returned by `gh repo view` above. Only fall back to `origin/HEAD` detection if the `gh` command fails, and only ask the user if both methods fail.
+- **Base branch** — resolved as follows (unless an explicit base was passed by the calling skill, in which case use that and skip detection):
+
+  **If the caller provided an explicit base branch:** use it directly.
+
+  **Otherwise, detect strategy:**
+  - `git ls-remote --heads origin develop` returned output → GitFlow.
+    Route by current branch pattern:
+    - `feature/*`, `fix/*`, `chore/*`, `refactor/*`, `docs/*`, `test/*`, `ci/*`, `perf/*`, `style/*` → base: `develop`
+    - `release/*`, `hotfix/*` → base: GitHub default branch (from `gh repo view`)
+  - No `develop` branch → trunk-based → base: GitHub default branch (from `gh repo view`)
+
+  If both detection methods fail, ask the user.
+
 - **Commit summary** — all commits since the branch diverged from base:
 
 ```bash
-git log --oneline $(git merge-base HEAD origin/$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name') 2>/dev/null)..HEAD 2>/dev/null | head -20
+git log --oneline $(git merge-base HEAD origin/<base-branch> 2>/dev/null)..HEAD 2>/dev/null | head -20
 ```
 
 ## Pre-flight: branch and commit (if on default branch)
