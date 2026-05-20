@@ -31,15 +31,26 @@ If not authenticated, tell the user: "You need to authenticate first — run `gh
 The reported version (e.g. `v1.2.0`) is now available in conversation for the remaining
 steps. Use it everywhere `vX.Y.Z` appears below.
 
-### Step 2 — Create and push the release branch
+### Step 2 — Detect branching strategy and create the release branch
+
+Detect the branching strategy:
 
 ```bash
-git checkout main && git pull origin main
+git ls-remote --heads origin develop
+```
+
+- Non-empty output → **REQUIRED SUB-SKILL:** Invoke `branching-strategy:gitflow`
+- Empty output → **REQUIRED SUB-SKILL:** Invoke `branching-strategy:trunk`
+
+The strategy skill determines the correct base branch. Use the base branch it provides:
+
+```bash
+git checkout <base-branch> && git pull origin <base-branch>
 git checkout -b release/vX.Y.Z
 git push -u origin release/vX.Y.Z
 ```
 
-Report the branch name to the user before continuing.
+Report the branch name and detected strategy to the user before continuing.
 
 **Edge cases:**
 - Already on a branch named `release/*`: confirm with the user before creating a new one.
@@ -56,8 +67,14 @@ Report the branch name to the user before continuing.
 
 ### Step 4 — Open the release PR
 
+Resolve the default branch (production target for release PRs in both GitFlow and trunk-based strategies):
+
+```bash
+gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'
+```
+
 **REQUIRED SUB-SKILL:** Invoke `github-pr` with args:
-`"open a release PR from release/vX.Y.Z into main. Title: 'release: vX.Y.Z'. The PR merges the release branch into main for the vX.Y.Z release."`
+`"open a release PR from release/vX.Y.Z into <default-branch>. Title: 'release: vX.Y.Z'. The PR merges the release branch into <default-branch> for the vX.Y.Z release."`
 
 ### Step 5 — Report completion
 
