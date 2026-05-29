@@ -500,36 +500,59 @@ def block_output(score: float, severity: str, tool_name: str, rule: str, dims: d
     block_mode = config.get("block_mode", "hard")
     block_threshold = config.get("block_threshold", "High")
 
+    sep = "─" * 54
     if block_mode == "soft":
         print(
-            f"[shimmering-forest] SOFT BLOCK: Risk score {score:.1f} ({severity}) — {tool_name} ({rule}).\n"
-            f"This operation exceeds the block threshold ({block_threshold}). "
-            f"Do NOT proceed until the user explicitly confirms they want to run this command.\n"
-            f"Dimensions: {dims_str(dims)}",
+            f"\n{sep}\n"
+            f"  shimmering-forest  SOFT BLOCK\n"
+            f"{sep}\n"
+            f"  Risk Score : {score:.1f} / 10.0  ({severity})\n"
+            f"  Threshold  : {block_threshold}\n"
+            f"  Tool       : {tool_name}\n"
+            f"  Rule       : {rule}\n"
+            f"  Dimensions : {dims_str(dims)}\n"
+            f"\n"
+            f"  Do NOT proceed until the user explicitly confirms.\n"
+            f"{sep}",
             file=sys.stdout,
             flush=True,
         )
         sys.exit(0)
     else:
-        payload = json.dumps({
-            "decision": "deny",
-            "reason": (
-                f"[shimmering-forest] Risk score {score:.1f} ({severity}) exceeds block threshold {block_threshold}.\n"
-                f"Tool: {tool_name} | Rule: {rule}\n"
-                f"Dimensions: {dims_str(dims)}\n"
-                f"To allow, lower block_threshold in ~/.claude/shimmering-forest.config.json"
-            ),
-        })
-        print(payload, file=sys.stderr, flush=True)
+        print(
+            f"\n{sep}\n"
+            f"  shimmering-forest  BLOCKED\n"
+            f"{sep}\n"
+            f"  Risk Score : {score:.1f} / 10.0  ({severity})\n"
+            f"  Threshold  : {block_threshold}\n"
+            f"  Tool       : {tool_name}\n"
+            f"  Rule       : {rule}\n"
+            f"  Dimensions : {dims_str(dims)}\n"
+            f"\n"
+            f"  To allow   : lower block_threshold in\n"
+            f"               ~/.claude/shimmering-forest.config.json\n"
+            f"{sep}",
+            file=sys.stderr,
+            flush=True,
+        )
         sys.exit(2)
 
 
 def warn_output(score: float, severity: str, tool_name: str, rule: str, dims: dict, config: dict) -> None:
     block_threshold = config.get("block_threshold", "High")
+    sep = "─" * 54
     print(
-        f"[shimmering-forest] WARNING: Risk score {score:.1f} ({severity}) — {tool_name} ({rule}). "
-        f"Threshold to block: {block_threshold}. "
-        f"Dimensions: {dims_str(dims)}. Proceed with caution.",
+        f"\n{sep}\n"
+        f"  shimmering-forest  WARNING\n"
+        f"{sep}\n"
+        f"  Risk Score : {score:.1f} / 10.0  ({severity})\n"
+        f"  Threshold  : {block_threshold}\n"
+        f"  Tool       : {tool_name}\n"
+        f"  Rule       : {rule}\n"
+        f"  Dimensions : {dims_str(dims)}\n"
+        f"\n"
+        f"  Proceed with caution.\n"
+        f"{sep}",
         file=sys.stdout,
         flush=True,
     )
