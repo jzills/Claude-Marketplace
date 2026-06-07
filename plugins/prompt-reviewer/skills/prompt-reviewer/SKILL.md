@@ -9,6 +9,7 @@ description: >
   "optimize this prompt", "fix my prompt", "critique this prompt", or any similar phrasing
   where a prompt is the subject of review rather than the instruction itself.
   Supports three modes: default (single-pass), --deep (guided dialogue), --variants (three rewrites).
+  Also trigger when the user uses "--deep" or "--variants" flags alongside a prompt.
 version: 1.0.0
 ---
 
@@ -30,10 +31,13 @@ Check whether the user included a flag:
 - No flag → run **Default mode**
 - `--deep` present → run **Deep mode**
 - `--variants` present → run **Variants mode**
+- No prompt provided → ask: "Please share the prompt you'd like me to review."
 
 If no flag is present and the prompt is longer than ~200 words or is clearly a multi-part system prompt, suggest `--deep` before proceeding:
 
 > "This looks like a complex prompt — I can run `--deep` for a guided review that asks about your intent and constraints first. Want that, or should I proceed with the default single-pass review?"
+
+If the user does not explicitly confirm `--deep`, proceed with Default mode.
 
 ---
 
@@ -79,6 +83,8 @@ Analyze the prompt across five dimensions. For each, give a one-line finding: ma
 
 Ask three questions one at a time. Wait for each answer before asking the next.
 
+If the user has already answered any of these questions in their initial message, skip those questions and proceed with the information provided.
+
 **Question 1:**
 > "What model or tool will this prompt be sent to? (e.g., Claude, ChatGPT, Midjourney, a system prompt, etc.)"
 
@@ -94,7 +100,7 @@ Once you have all three answers, run the same five-dimension analysis as Default
 
 ## Variants Mode (`--variants`)
 
-Run the five-dimension analysis internally — do not display the analysis. Produce three rewrites.
+Run the five-dimension analysis internally. Do not output any analysis section, summary of findings, or intermediate reasoning — go directly to the three variants.
 
 **Output format:**
 
@@ -124,7 +130,7 @@ Run the five-dimension analysis internally — do not display the analysis. Prod
 *Best for:* [one sentence on when this variant works best]
 ```
 
-Label Variant 3 as recommended unless one of the other variants is clearly more appropriate given the original prompt's evident purpose.
+Label Variant 3 as recommended. If the original prompt is clearly for an API or cost-sensitive context (e.g., a system prompt with explicit token constraints), label Variant 1 as recommended instead.
 
 ---
 
@@ -132,5 +138,5 @@ Label Variant 3 as recommended unless one of the other variants is clearly more 
 
 - **Never rewrite for rewriting's sake.** If the original prompt is already clear and specific, say so. A good review sometimes concludes "this prompt is solid — minor tweak only."
 - **Preserve intent.** The refined prompt should do what the original intended, just more effectively.
-- **Flag model-specific conventions.** Midjourney prompts differ from Claude system prompts — call this out when relevant.
+- **Flag model-specific conventions.** Midjourney prompts differ from Claude system prompts — when relevant, add a note after the **Rewritten** section explaining any model-specific choices made.
 - **Token efficiency ≠ shorter is always better.** A longer prompt is correct when added words prevent ambiguity or reduce back-and-forth.
