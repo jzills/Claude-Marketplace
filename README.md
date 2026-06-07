@@ -23,6 +23,7 @@ A Claude Code plugin marketplace (`jzills`) with plugins for git workflows, .NET
 | `release-workflow` | Orchestrates a full release workflow: version detection, release branch, CI monitoring, and PR creation |
 | `branching-strategy` | Describes GitFlow and trunk-based branching conventions; referenced by release-workflow, conventional-commits, and github-pr to determine base branches and merge targets |
 | `python-pep8` | Reviews Python code for PEP 8 violations, auto-fixes style issues, writes PEP 8-compliant code, and explains style rules on demand |
+| `prompt-reviewer` | Reviews and refines prompts for clarity, specificity, token efficiency, and missing context. Supports default single-pass review, `--deep` guided dialogue, and `--variants` mode |
 
 ## Install a plugin
 
@@ -38,6 +39,7 @@ A Claude Code plugin marketplace (`jzills`) with plugins for git workflows, .NET
 /plugin install release-workflow@jzills
 /plugin install branching-strategy@jzills
 /plugin install python-pep8@jzills
+/plugin install prompt-reviewer@jzills
 ```
 
 ## Update
