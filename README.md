@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="assets/banner.svg" alt="claude-marketplace — Skills, workflows, and tools for Claude Code." width="800"/>
+
+![claude-marketplace — Skills, workflows, and tools for Claude Code.](assets/banner.svg)
+
 </div>
 
 <div align="center">
