@@ -8,7 +8,7 @@ A Claude Code plugin marketplace with skills for git workflows, code quality, sa
 
 [![PR Validation](https://github.com/jzills/Claude-Marketplace/actions/workflows/pr.yml/badge.svg)](https://github.com/jzills/Claude-Marketplace/actions/workflows/pr.yml)
 [![CodeQL](https://github.com/jzills/Claude-Marketplace/actions/workflows/codeql.yml/badge.svg)](https://github.com/jzills/Claude-Marketplace/actions/workflows/codeql.yml)
-![Plugins](https://img.shields.io/badge/plugins-7-D97757?style=flat-square&labelColor=21262d)
+![Plugins](https://img.shields.io/badge/plugins-7-D97757)
 
 </div>
 
