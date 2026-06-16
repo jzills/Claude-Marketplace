@@ -1,8 +1,8 @@
 <div align="center">
-
-![claude-marketplace — Skills, workflows, and tools for Claude Code.](assets/banner.svg)
-
+  <img src="assets/banner.svg" alt="claude-marketplace — Skills, workflows, and tools for Claude Code." width="800"/>
 </div>
+
+<br>
 
 <div align="center">
 
